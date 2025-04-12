@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Система обзвона</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #5865F2;
+            --secondary-color: #2f3136;
+            --background-color: #36393f;
+            --text-color: #ffffff;
+            --border-radius: 8px;
+            --error-color: #ed4245;
+            --success-color: #57F287;
+            --warning-color: #FEE75C;
+            --hover-color: #4752c4;
+            --input-bg: #40444b;
+            --card-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Roboto', sans-serif;
+            transition: all 0.2s ease;
+        }
+
+        body {
+            background: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            background: var(--secondary-color);
+            margin-bottom: 30px;
+            width: 100%;
+            box-shadow: var(--card-shadow);
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 2.5em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 25px;
+            background: var(--primary-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .btn:hover {
+            background: var(--hover-color);
+            transform: translateY(-2px);
+        }
+
+        .btn.disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .admin-panel {
+            display: none;
+            background: var(--secondary-color);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            margin-top: 20px;
+            width: 100%;
+            max-width: 1000px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .interview-button {
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--primary-color);
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid transparent;
+            border-radius: var(--border-radius);
+            background: var(--input-bg);
+            color: var(--text-color);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .status-message {
+            color: var(--error-color);
+            margin-top: 10px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+
+        .info-block {
+            background: var(--secondary-color);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+            width: 100%;
+            max-width: 1000px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .info-block h2 {
+            color: var(--primary-color);
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 2em;
+            font-weight: 700;
+        }
+
+        .info-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            background: var(--input-bg);
+            border-radius: var(--border-radius);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .info-section h3 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+
+        .info-section ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .info-section li {
+            margin-bottom: 12px;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .info-section li:before {
+            content: "→";
+            color: var(--primary-color);
+            position: absolute;
+            left: 0;
+            font-weight: bold;
+        }
+
+        .important-note {
+            border-left: 3px solid var(--primary-color);
+            padding-left: 15px;
+            margin: 15px 0;
+        }
+
+        .success-text {
+            color: var(--success-color);
+        }
+
+        .error-text {
+            color: var(--error-color);
+        }
+
+        .admin-login {
+            margin-top: 20px;
+            text-align: center;
+            padding: 10px;
+            background: var(--secondary-color);
+            border-radius: var(--border-radius);
+            max-width: 500px;
+        }
+
+        .admin-login p {
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            color: #999;
+        }
+
+        .admin-login .btn {
+            background: var(--secondary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .admin-login .btn:hover {
+            background: var(--primary-color);
+        }
+
+        .users-list {
+            width: 100%;
+            margin-top: 20px;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+        }
+
+        .users-list th, .users-list td {
+            padding: 15px;
+            text-align: left;
+            background: var(--input-bg);
+        }
+
+        .users-list th {
+            background: var(--primary-color);
+            color: var(--text-color);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .users-list tr:hover td {
+            background: var(--secondary-color);
+        }
+
+        .result-passed {
+            color: var(--success-color);
+            font-weight: 600;
+        }
+
+        .result-failed {
+            color: var(--error-color);
+            font-weight: 600;
+        }
+
+        .add-user-form {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .user-status-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: var(--border-radius);
+            text-align: center;
+            font-weight: bold;
+            animation: slideIn 0.5s ease;
+        }
+
+        .user-status-message.passed {
+            background: rgba(68, 255, 68, 0.1);
+            color: var(--success-color);
+        }
+
+        .user-status-message.failed {
+            background: rgba(255, 68, 68, 0.1);
+            color: var(--error-color);
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: var(--secondary-color);
+            padding: 30px;
+            border-radius: var(--border-radius);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--card-shadow);
+            animation: modalIn 0.3s ease;
+        }
+
+        .modal h3 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            text-align: center;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+
+        .sort-button {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            padding: 0 5px;
+        }
+
+        .sort-button:hover {
+            color: #fff;
+        }
+
+        .search-box {
+            margin: 20px 0;
+            width: 100%;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid transparent;
+            border-radius: var(--border-radius);
+            background: var(--input-bg);
+            color: var(--text-color);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .date-column {
+            font-size: 0.9em;
+            color: #888;
+        }
+
+        .filter-buttons {
+            margin: 20px 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            padding: 8px 20px;
+            border: 2px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            background: transparent;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover {
+            background: var(--primary-color);
+        }
+
+        .filter-btn.active {
+            background: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .stats-panel {
+            background: var(--secondary-color);
+            padding: 25px;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+            background: var(--input-bg);
+            border-radius: var(--border-radius);
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-item:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-item::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--primary-color);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .stat-item:hover::after {
+            transform: scaleX(1);
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 1em;
+            color: var(--text-color);
+            opacity: 0.8;
+        }
+
+        .admin-tools {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .notes-panel {
+            background: var(--secondary-color);
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin: 20px 0;
+        }
+
+        .notes-panel textarea {
+            width: 100%;
+            min-height: 100px;
+            background: var(--background-color);
+            color: var(--text-color);
+            border: 1px solid var(--primary-color);
+            border-radius: var(--border-radius);
+            padding: 10px;
+            margin-top: 10px;
+            resize: vertical;
+        }
+
+        .edit-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .edit-btn {
+            padding: 5px 10px;
+            font-size: 0.9em;
+            background: var(--primary-color);
+        }
+
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+
+        .tooltip .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background: var(--secondary-color);
+            color: var(--text-color);
+            text-align: center;
+            border-radius: var(--border-radius);
+            padding: 10px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: var(--card-shadow);
+            animation: fadeIn 0.2s ease;
+        }
+
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+
+            .header {
+                padding: 20px 0;
+            }
+
+            .header h1 {
+                font-size: 2em;
+            }
+
+            .stats-panel {
+                grid-template-columns: 1fr;
+            }
+
+            .filter-buttons {
+                flex-direction: column;
+            }
+
+            .filter-btn {
+                width: 100%;
+            }
+
+            .users-list {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: var(--border-radius);
+            color: var(--text-color);
+            background: var(--secondary-color);
+            box-shadow: var(--card-shadow);
+            z-index: 2000;
+            transform: translateX(120%);
+            transition: transform 0.3s ease;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        .notification.success {
+            background: var(--success-color);
+            color: #000;
+        }
+
+        .notification.error {
+            background: var(--error-color);
+        }
+
+        .notification.info {
+            background: var(--primary-color);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid var(--text-color);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 20px 0;
+        }
+
+        .btn-icon {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-icon svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-top: 15px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .status-badge.ready {
+            background: rgba(87, 242, 135, 0.15);
+            color: var(--success-color);
+            border: 1px solid var(--success-color);
+        }
+
+        .status-badge.not-ready {
+            background: rgba(237, 66, 69, 0.15);
+            color: var(--error-color);
+            border: 1px solid var(--error-color);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+
+        .btn:not(.disabled):hover {
+            animation: pulse 1s infinite;
+            background: var(--hover-color);
+            transform: translateY(-2px);
+        }
+
+        .card {
+            background: var(--secondary-color);
+            border-radius: var(--border-radius);
+            padding: 20px;
+            margin: 10px 0;
+            box-shadow: var(--card-shadow);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .card-title {
+            font-size: 1.2em;
+            color: var(--primary-color);
+            font-weight: 600;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            margin: 20px 0;
+            border-radius: var(--border-radius);
+            background: var(--secondary-color);
+            box-shadow: var(--card-shadow);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+
+        .pagination button {
+            padding: 8px 12px;
+            border: none;
+            background: var(--secondary-color);
+            color: var(--text-color);
+            border-radius: var(--border-radius);
+            cursor: pointer;
+        }
+
+        .pagination button.active {
+            background: var(--primary-color);
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .modal-content {
+            max-height: 80vh;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: var(--background-color);
+            border-radius: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: var(--hover-color);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+
+        .form-col {
+            flex: 1;
+        }
+
+        .help-text {
+            font-size: 0.9em;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 5px;
+            transition: color 0.3s ease;
+        }
+
+        .form-group:hover .help-text {
+            color: var(--primary-color);
+        }
+
+        .required-field::after {
+            content: "*";
+            color: var(--error-color);
+            margin-left: 4px;
+        }
+
+        .loading {
+            position: relative;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid var(--text-color);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="container">
+            <h1>Система обзвона</h1>
+            <p>Добро пожаловать в систему обзвона кандидатов на пост администратора</p>
+            <div class="status-badge" id="globalStatus"></div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="info-block">
+            <h2>Информация для кандидатов</h2>
+            
+            <div class="info-section">
+                <h3>Как проходит обзвон?</h3>
+                <ul>
+                    <li>Обзвон проводится в беседе ВК</li>
+                    <li>Длительность обзвона: 15-20 минут</li>
+                    <li>Проводится администраторами проекта</li>
+                    <li>Включает проверку знаний и собеседование</li>
+                </ul>
+            </div>
+
+            <div class="info-section">
+                <h3>Требования к кандидатам</h3>
+                <ul>
+                    <li>Возраст от 16 лет</li>
+                    <li>Наличие рабочего микрофона</li>
+                    <li>Отсутствие посторонних шумов во время обзвона</li>
+                    <li>Знание правил проекта</li>
+                    <li>Адекватное поведение и стрессоустойчивость</li>
+                </ul>
+            </div>
+
+            <div class="info-section">
+                <h3>Статусы обзвона</h3>
+                <ul>
+                    <li><span class="success-text">Обзвон готов</span> - можно присоединиться к беседе ВК</li>
+                    <li><span class="error-text">Обзвон не готов</span> - дождитесь начала обзвона</li>
+                </ul>
+            </div>
+
+            <div class="important-note">
+                <h3>Важно!</h3>
+                <ul>
+                    <li>Будьте готовы к обзвону заранее</li>
+                    <li>Проверьте работу микрофона до начала</li>
+                    <li>Найдите тихое место для разговора</li>
+                    <li>Подготовьте документ с правилами проекта</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="interview-button">
+            <button class="btn" id="joinButton" onclick="joinInterview()">Зайти на обзвон</button>
+            <div id="statusMessage" class="status-message"></div>
+        </div>
+
+        <div class="admin-panel" id="adminPanel">
+            <h2>Панель администратора</h2>
+            <div class="form-group">
+                <label for="vkLink">Ссылка на беседу ВК</label>
+                <input type="text" id="vkLink" placeholder="Вставьте ссылку на беседу ВК">
+            </div>
+            <div class="checkbox-group">
+                <input type="checkbox" id="interviewStatus">
+                <label for="interviewStatus">Обзвон готов</label>
+            </div>
+            <button class="btn" onclick="saveAdminSettings()">Сохранить настройки</button>
+
+            <h3 style="margin-top: 30px; color: var(--primary-color);">Добавить результат обзвона</h3>
+            <div class="add-user-form">
+                <div class="form-group">
+                    <label for="userName">Никнейм пользователя</label>
+                    <input type="text" id="userName" placeholder="Введите никнейм">
+                </div>
+                <div class="form-group">
+                    <label for="userResult">Результат</label>
+                    <select id="userResult" class="form-group input">
+                        <option value="passed">Прошел</option>
+                        <option value="failed">Не прошел</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="userReason">Причина (необязательно для прошедших)</label>
+                    <input type="text" id="userReason" placeholder="Укажите причину отказа">
+                </div>
+                <button class="btn" onclick="addUserResult()">Добавить результат</button>
+            </div>
+
+            <h3 style="margin-top: 30px; color: var(--primary-color);">Результаты обзвонов</h3>
+            
+            <div class="stats-panel">
+                <div class="stat-item">
+                    <div class="stat-value" id="totalUsers">0</div>
+                    <div class="stat-label">Всего обзвонов</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="passedUsers">0</div>
+                    <div class="stat-label">Прошли</div>
+                    <div class="stat-percent" id="passedPercent">0%</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="failedUsers">0</div>
+                    <div class="stat-label">Не прошли</div>
+                    <div class="stat-percent" id="failedPercent">0%</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="todayUsers">0</div>
+                    <div class="stat-label">Сегодня</div>
+                </div>
+            </div>
+
+            <div class="admin-tools">
+                <button class="btn" onclick="exportResults()">Экспорт результатов</button>
+                <button class="btn" onclick="toggleNotes()">Заметки администратора</button>
+            </div>
+
+            <div class="notes-panel" id="notesPanel" style="display: none;">
+                <h3>Заметки администратора</h3>
+                <textarea id="adminNotes" placeholder="Введите заметки по обзвону..."
+                    onchange="saveNotes()"></textarea>
+            </div>
+
+            <div class="search-box">
+                <input type="text" id="searchUsers" placeholder="Поиск по никнейму..." oninput="filterUsers()">
+            </div>
+
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="filterByStatus('all')">Все</button>
+                <button class="filter-btn" onclick="filterByStatus('passed')">Прошли</button>
+                <button class="filter-btn" onclick="filterByStatus('failed')">Не прошли</button>
+                <button class="filter-btn" onclick="filterByDate('today')">Сегодня</button>
+                <button class="filter-btn" onclick="filterByDate('week')">За неделю</button>
+            </div>
+
+            <table class="users-list">
+                <thead>
+                    <tr>
+                        <th>
+                            Никнейм
+                            <button class="sort-button" onclick="sortUsers('name')">↕</button>
+                        </th>
+                        <th>
+                            Результат
+                            <button class="sort-button" onclick="sortUsers('result')">↕</button>
+                        </th>
+                        <th>
+                            Причина
+                            <div class="tooltip">ℹ
+                                <span class="tooltip-text">Укажите причину отказа или заметку о прохождении</span>
+                            </div>
+                        </th>
+                        <th>
+                            Дата
+                            <button class="sort-button" onclick="sortUsers('date')">↕</button>
+                        </th>
+                        <th>Действия</th>
+                    </tr>
+                </thead>
+                <tbody id="usersList">
+                </tbody>
+            </table>
+        </div>
+
+        <div class="admin-login" id="adminLogin">
+            <p>Вы администратор?</p>
+            <button class="btn" onclick="loginAsAdmin()">Войти как администратор</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="userModal">
+        <div class="modal">
+            <h3>Введите ваш никнейм</h3>
+            <div class="form-group">
+                <input type="text" id="modalUserName" placeholder="Никнейм">
+            </div>
+            <div class="modal-buttons">
+                <button class="btn" onclick="closeUserModal()">Отмена</button>
+                <button class="btn" id="modalConfirmButton">Продолжить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Constants
+        const STORAGE_KEYS = {
+            IS_ADMIN: 'isAdmin',
+            VK_LINK: 'vkLink',
+            INTERVIEW_STATUS: 'interviewStatus',
+            USERS: 'users',
+            ADMIN_NOTES: 'adminNotes',
+            LAST_LOGIN_ATTEMPT: 'lastLoginAttempt',
+            SORT_DIRECTION: 'sortDirection',
+            CURRENT_FILTER: 'currentFilter'
+        };
+
+        const MAX_LOGIN_ATTEMPTS = 3;
+        const LOCKOUT_TIME = 30 * 60 * 1000; // 30 minutes
+
+        // State management
+        let currentFilter = JSON.parse(localStorage.getItem(STORAGE_KEYS.CURRENT_FILTER)) || { 
+            status: 'all', 
+            date: 'all' 
+        };
+        let searchQuery = '';
+        let sortDirection = 1;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeApp();
+            setupEventListeners();
+            addHelpText();
+            updateGlobalStatus();
+        });
+
+        function initializeApp() {
+            // Check admin status and show/hide panel
+            const isAdmin = localStorage.getItem(STORAGE_KEYS.IS_ADMIN) === 'true';
+            if (isAdmin) {
+                document.getElementById('adminPanel').style.display = 'block';
+                document.getElementById('adminLogin').style.display = 'none';
+            }
+
+            // Load saved settings
+            loadSavedSettings();
+            
+            // Update UI
+            updateButtonState();
+            updateUsersList();
+            updateStats();
+        }
+
+        function setupEventListeners() {
+            // Search input
+            document.getElementById('searchUsers').addEventListener('input', debounce(filterUsers, 300));
+
+            // Modal events
+            document.getElementById('modalUserName').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    document.getElementById('modalConfirmButton').click();
+                }
+            });
+
+            // Close modal on outside click
+            window.addEventListener('click', (event) => {
+                const modal = document.getElementById('userModal');
+                if (event.target === modal) {
+                    closeUserModal();
+                }
+            });
+
+            // Admin notes autosave
+            document.getElementById('adminNotes').addEventListener('input', 
+                debounce(() => saveNotes(), 500)
+            );
+        }
+
+        function loadSavedSettings() {
+            const savedVkLink = localStorage.getItem(STORAGE_KEYS.VK_LINK) || '';
+            const savedInterviewStatus = localStorage.getItem(STORAGE_KEYS.INTERVIEW_STATUS) === 'true';
+            
+            document.getElementById('vkLink').value = savedVkLink;
+            document.getElementById('interviewStatus').checked = savedInterviewStatus;
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function showNotification(message, type = 'info') {
+            const icons = {
+                success: '✓',
+                error: '✕',
+                info: 'ℹ'
+            };
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <span class="notification-icon">${icons[type]}</span>
+                <span class="notification-message">${message}</span>
+            `;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.classList.add('show');
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }, 100);
+        }
+
+        function updateGlobalStatus() {
+            const interviewStatus = localStorage.getItem(STORAGE_KEYS.INTERVIEW_STATUS) === 'true';
+            const statusBadge = document.getElementById('globalStatus');
+            
+            statusBadge.className = `status-badge ${interviewStatus ? 'ready' : 'not-ready'}`;
+            statusBadge.innerHTML = interviewStatus ? 
+                '<span>✓ Обзвон открыт</span>' : 
+                '<span>⏳ Обзвон закрыт</span>';
+        }
+
+        function showLoadingState(element) {
+            element.classList.add('loading');
+            element.disabled = true;
+        }
+
+        function hideLoadingState(element) {
+            element.classList.remove('loading');
+            element.disabled = false;
+        }
+
+        function addHelpText() {
+            const helpTexts = {
+                'userName': 'Введите ваш игровой никнейм (минимум 3 символа)',
+                'userResult': 'Выберите результат собеседования',
+                'userReason': 'Укажите причину отказа или заметку о прохождении',
+                'vkLink': 'Вставьте полную ссылку на беседу ВК',
+                'interviewStatus': 'Включите, когда готовы принимать кандидатов'
+            };
+
+            Object.entries(helpTexts).forEach(([id, text]) => {
+                const element = document.getElementById(id);
+                if (element) {
+                    const helpText = document.createElement('div');
+                    helpText.className = 'help-text';
+                    helpText.textContent = text;
+                    element.parentNode.appendChild(helpText);
+                }
+            });
+        }
+
+        function saveAdminSettings() {
+            const button = event.target;
+            showLoadingState(button);
+
+            const vkLink = document.getElementById('vkLink').value.trim();
+            const interviewStatus = document.getElementById('interviewStatus').checked;
+            
+            if (!vkLink) {
+                showNotification('Пожалуйста, введите ссылку на беседу ВК', 'error');
+                hideLoadingState(button);
+                return;
+            }
+            
+            try {
+                new URL(vkLink);
+            } catch {
+                showNotification('Пожалуйста, введите корректную ссылку', 'error');
+                hideLoadingState(button);
+                return;
+            }
+            
+            localStorage.setItem(STORAGE_KEYS.VK_LINK, vkLink);
+            localStorage.setItem(STORAGE_KEYS.INTERVIEW_STATUS, interviewStatus);
+            
+            setTimeout(() => {
+                showNotification('Настройки успешно сохранены', 'success');
+                hideLoadingState(button);
+                updateButtonState();
+                updateGlobalStatus();
+            }, 500);
+        }
+
+        function updateButtonState() {
+            const interviewStatus = localStorage.getItem(STORAGE_KEYS.INTERVIEW_STATUS) === 'true';
+            const button = document.getElementById('joinButton');
+            const statusMessage = document.getElementById('statusMessage');
+            
+            button.classList.toggle('disabled', !interviewStatus);
+            statusMessage.textContent = interviewStatus ? '' : 'Обзвон еще не готов';
+            statusMessage.className = `status-message ${interviewStatus ? 'success-text' : 'error-text'}`;
+        }
+
+        function loginAsAdmin() {
+            const lastAttemptTime = localStorage.getItem(STORAGE_KEYS.LAST_LOGIN_ATTEMPT);
+            const now = Date.now();
+
+            if (lastAttemptTime && (now - parseInt(lastAttemptTime) < LOCKOUT_TIME)) {
+                const remainingTime = Math.ceil((LOCKOUT_TIME - (now - parseInt(lastAttemptTime))) / 60000);
+                showNotification(`Слишком много попыток входа. Попробуйте через ${remainingTime} минут`, 'error');
+                return;
+            }
+
+            const password = prompt('Введите пароль администратора:');
+            if (!password) return;
+
+            const hashedPassword = hashPassword(password);
+            
+            if (hashedPassword === 'e3274be5c857fb42ab72d786e281b4b8') {
+                localStorage.setItem(STORAGE_KEYS.IS_ADMIN, 'true');
+                document.getElementById('adminPanel').style.display = 'block';
+                document.getElementById('adminLogin').style.display = 'none';
+                showNotification('Вы успешно вошли как администратор', 'success');
+            } else {
+                loginAttempts++;
+                if (loginAttempts >= MAX_LOGIN_ATTEMPTS) {
+                    localStorage.setItem(STORAGE_KEYS.LAST_LOGIN_ATTEMPT, now.toString());
+                    showNotification(`Превышено количество попыток. Попробуйте через 30 минут`, 'error');
+                } else {
+                    showNotification('Неверный пароль', 'error');
+                }
+            }
+        }
+
+        function hashPassword(password) {
+            // Простая хеш-функция для демонстрации
+            let hash = 0;
+            for (let i = 0; i < password.length; i++) {
+                const char = password.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash;
+            }
+            return hash.toString(16);
+        }
+
+        function addUserResult() {
+            const userName = document.getElementById('userName').value.trim();
+            const userResult = document.getElementById('userResult').value;
+            const userReason = document.getElementById('userReason').value.trim();
+
+            if (!userName || userName.length < 3) {
+                showNotification('Никнейм должен содержать минимум 3 символа', 'error');
+                return;
+            }
+
+            if (userResult === 'failed' && !userReason) {
+                showNotification('Укажите причину отказа', 'error');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
+            
+            if (users.some(u => u.name.toLowerCase() === userName.toLowerCase())) {
+                showNotification('Пользователь с таким никнеймом уже существует', 'error');
+                return;
+            }
+
+            users.push({
+                name: userName,
+                result: userResult,
+                reason: userReason,
+                date: new Date().toISOString()
+            });
+
+            localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+            updateUsersList();
+            showNotification('Результат успешно добавлен', 'success');
+
+            // Clear form
+            document.getElementById('userName').value = '';
+            document.getElementById('userReason').value = '';
+        }
+
+        function updateStats() {
+            const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
+            const today = new Date().toISOString().split('T')[0];
+
+            const stats = {
+                total: users.length,
+                passed: users.filter(u => u.result === 'passed').length,
+                failed: users.filter(u => u.result === 'failed').length,
+                today: users.filter(u => u.date.startsWith(today)).length
+            };
+
+            document.getElementById('totalUsers').textContent = stats.total;
+            document.getElementById('passedUsers').textContent = stats.passed;
+            document.getElementById('failedUsers').textContent = stats.failed;
+            document.getElementById('todayUsers').textContent = stats.today;
+
+            if (stats.total > 0) {
+                document.getElementById('passedPercent').textContent = 
+                    Math.round((stats.passed / stats.total) * 100) + '%';
+                document.getElementById('failedPercent').textContent = 
+                    Math.round((stats.failed / stats.total) * 100) + '%';
+            }
+        }
+
+        function updateUsersList() {
+            const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
+            const usersList = document.getElementById('usersList');
+            usersList.innerHTML = '';
+
+            let filteredUsers = users.filter(user => {
+                const matchesSearch = user.name.toLowerCase().includes(searchQuery.toLowerCase());
+                const matchesStatus = currentFilter.status === 'all' || 
+                    (currentFilter.status === 'passed' && user.result === 'passed') ||
+                    (currentFilter.status === 'failed' && user.result === 'failed');
+                
+                const userDate = new Date(user.date);
+                const now = new Date();
+                const matchesDate = currentFilter.date === 'all' ||
+                    (currentFilter.date === 'today' && userDate.toDateString() === now.toDateString()) ||
+                    (currentFilter.date === 'week' && (now - userDate) <= 7 * 24 * 60 * 60 * 1000);
+
+                return matchesSearch && matchesStatus && matchesDate;
+            });
+
+            if (filteredUsers.length === 0) {
+                const emptyRow = document.createElement('tr');
+                emptyRow.innerHTML = `
+                    <td colspan="5" style="text-align: center; padding: 20px;">
+                        Нет результатов для отображения
+                    </td>
+                `;
+                usersList.appendChild(emptyRow);
+                return;
+            }
+
+            filteredUsers.forEach((user, index) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.name}</td>
+                    <td class="${user.result === 'passed' ? 'result-passed' : 'result-failed'}">
+                        ${user.result === 'passed' ? 'Прошел' : 'Не прошел'}
+                    </td>
+                    <td>${user.reason || '-'}</td>
+                    <td class="date-column">${formatDate(user.date)}</td>
+                    <td class="edit-buttons">
+                        <button class="btn edit-btn" onclick="editUser(${index})" title="Редактировать">✎</button>
+                        <button class="btn edit-btn" onclick="removeUser(${index})" title="Удалить">✕</button>
+                    </td>
+                `;
+                usersList.appendChild(row);
+            });
+
+            updateStats();
+            localStorage.setItem(STORAGE_KEYS.CURRENT_FILTER, JSON.stringify(currentFilter));
+        }
+
+        function showUserModal(action) {
+            const modal = document.getElementById('userModal');
+            const input = document.getElementById('modalUserName');
+            const confirmButton = document.getElementById('modalConfirmButton');
+            
+            modal.style.display = 'block';
+            input.value = '';
+            input.focus();
+            
+            confirmButton.onclick = () => {
+                const userName = input.value.trim();
+                if (userName) {
+                    modal.style.display = 'none';
+                    if (action === 'join') {
+                        processJoinInterview(userName);
+                    } else {
+                        processCheckStatus(userName);
+                    }
+                }
+            };
+        }
+
+        function closeUserModal() {
+            document.getElementById('userModal').style.display = 'none';
+        }
+
+        function processJoinInterview(userName) {
+            const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
+            const user = users.find(u => u.name.toLowerCase() === userName.toLowerCase());
+
+            if (user) {
+                alert(user.result === 'passed' ? 
+                    'Вы уже прошли обзвон!' : 
+                    `Вам отказано в обзвоне. Причина: ${user.reason}`);
+                return;
+            }
+
+            const interviewStatus = localStorage.getItem(STORAGE_KEYS.INTERVIEW_STATUS) === 'true';
+            const vkLink = localStorage.getItem(STORAGE_KEYS.VK_LINK);
+
+            if (!interviewStatus) {
+                alert('Обзвон еще не готов. Пожалуйста, подождите.');
+                return;
+            }
+
+            if (!vkLink) {
+                alert('Ссылка на беседу ВК еще не установлена администратором');
+                return;
+            }
+
+            window.open(vkLink, '_blank');
+        }
+
+        function processCheckStatus(userName) {
+            const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS) || '[]');
+            const user = users.find(u => u.name.toLowerCase() === userName.toLowerCase());
+
+            const statusMessage = document.createElement('div');
+            statusMessage.className = 'user-status-message';
+
+            if (user) {
+                if (user.result === 'passed') {
+                    statusMessage.classList.add('passed');
+                    statusMessage.textContent = 'Поздравляем! Вы успешно прошли обзвон!';
+                } else {
+                    statusMessage.classList.add('failed');
+                    statusMessage.textContent = `К сожалению, вы не прошли обзвон. Причина: ${user.reason}`;
+                }
+            } else {
+                statusMessage.textContent = 'Ваш никнейм не найден в списке обзвона';
+            }
+
+            const oldMessage = document.querySelector('.user-status-message');
+            if (oldMessage) oldMessage.remove();
+
+            document.querySelector('.interview-button').appendChild(statusMessage);
+        }
+
+        // Обновляем обработчики кнопок
+        document.getElementById('joinButton').onclick = () => showUserModal('join');
+        const checkStatusButton = document.createElement('button');
+        checkStatusButton.className = 'btn';
+        checkStatusButton.style.marginLeft = '10px';
+        checkStatusButton.textContent = 'Проверить статус';
+        checkStatusButton.onclick = () => showUserModal('check');
+        document.getElementById('joinButton').parentNode.appendChild(checkStatusButton);
+
+        // Закрытие модального окна при клике вне его
+        window.onclick = function(event) {
+            const modal = document.getElementById('userModal');
+            if (event.target === modal) {
+                closeUserModal();
+            }
+        };
+
+        // Обработка нажатия Enter в модальном окне
+        document.getElementById('modalUserName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('modalConfirmButton').click();
+            }
+        });
+
+        // Инициализация при загрузке
+        updateStats();
+        document.getElementById('searchUsers').value = '';
+    </script>
+</body>
+</html> 
